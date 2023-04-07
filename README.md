@@ -2,6 +2,10 @@
 
 Helpful methods to get information about fields and objects, including schema information.
 
+<a href="https://githubsfdeploy.herokuapp.com">
+  <img src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/src/main/webapp/resources/img/deploy.png" alt="Deploy to Salesforce" />
+</a>
+
 Examples:
 
 Get the describe for an object without ever running an expensive Schema.globalDescribe() call
