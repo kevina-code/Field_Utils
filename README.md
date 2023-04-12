@@ -10,16 +10,20 @@ Examples:
 
 Get the describe for an object without ever running an expensive Schema.globalDescribe() call
 ```java
-Schema.DescribeSObjectResult accountDescribe = FieldUtils.getDynamicDescribe('Account'); // string param version
+// using object api name string param:
+Schema.DescribeSObjectResult accountDescribe = FieldUtils.getDynamicDescribe('Account');
 
-Schema.DescribeSObjectResult accountDescribe = FieldUtils.getDynamicDescribe(accountRecord); // SObject param version
+// using SObject record param:
+Schema.DescribeSObjectResult accountDescribe = FieldUtils.getDynamicDescribe(accountRecord);
 ```
 -------------------------
 Get the field map for an object without ever running an expensive Schema.globalDescribe() call
 ```java
-Map<String, Schema.SObjectField> accountFieldMap = FieldUtils.getFieldMap('Account'); // string param version
+// using object api name string param:
+Map<String, Schema.SObjectField> accountFieldMap = FieldUtils.getFieldMap('Account'); 
 
-Map<String, Schema.SObjectField> accountFieldMap = FieldUtils.getFieldMap(accountRecord); // SObject param version
+// using SObject record param:
+Map<String, Schema.SObjectField> accountFieldMap = FieldUtils.getFieldMap(accountRecord); 
 ```
 -------------------------
 Get the properties for a particular field set:
@@ -34,17 +38,38 @@ List<Schema.FieldSetMember> acctFieldSetApiNames = FieldUtils.getFieldSetFieldAP
 -------------------------
 Determine if SObjectField is createable:
 ```java
+// using SObjectField param:
 Boolean isCreateable = FieldUtils.isFieldCreateable(Account.Industry);
+
+// using string params (objApiName and fieldApiName):
+Boolean isCreateable = FieldUtils.isFieldCreateable('Account', 'Industry');
 ```
 -------------------------
 Determine if SObjectField is accessible:
 ```java
+// using SObjectField param:
 Boolean isAccessible = FieldUtils.isFieldAccessible(Account.Industry);
+
+// using string params (objApiName and fieldApiName):
+Boolean isAccessible = FieldUtils.isFieldAccessible('Account', 'Industry');
 ```
 -------------------------
 Determine if SObjectField is updateable:
 ```java
+// using SObjectField param:
 Boolean isUpdateable = FieldUtils.isFieldUpdateable(Account.Industry);
+
+// using string params (objApiName and fieldApiName):
+Boolean isUpdateable = FieldUtils.isFieldUpdateable('Account', 'Industry');
+```
+-------------------------
+Get the field type for an SObject field:
+```java
+// using SObjectField param:
+String industryFieldType = FieldUtils.getFieldType(Account.Industry); // PICKLIST
+
+// using string params (objApiName and fieldApiName):
+String industryFieldType = FieldUtils.getFieldType('Account', 'Industry'); //PICKLIST
 ```
 -------------------------
 Get a list of all field api names for a given object:
