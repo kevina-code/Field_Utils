@@ -7,7 +7,7 @@
  * Date : Name : Notes
  */
 @isTest
-public class FieldUtilsTest {
+private class FieldUtilsTest {
   @isTest
   static void test_getDynamicDescribe() {
     List<Account> accounts = createTestAccounts();
@@ -132,6 +132,16 @@ public class FieldUtilsTest {
   }
 
   @isTest
+  static void test_picklistMethods() {
+    Assert.isTrue(
+      FieldUtils.getPicklistLabels('Contact', 'LeadSource').contains('Web')
+    );
+    Assert.isTrue(
+      FieldUtils.getPicklistValues('Contact', 'LeadSource').contains('Web')
+    );
+  }
+
+  @isTest
   static void test_fieldSetMethods() {
     try {
       // cannot create field set in test class; this is the best we can do:
@@ -174,8 +184,16 @@ public class FieldUtilsTest {
       'Expected isFieldUpdateble to be true for Account Name field'
     );
     Assert.isTrue(
+      FieldUtils.isFieldUpdateable('Account', 'Industry'),
+      'Expected isFieldUpdateble to be true for Account Industry field'
+    );
+    Assert.isTrue(
       FieldUtils.isFieldAccessible(Account.Name),
       'Expected isFieldAccessible to be true for Account Name field'
+    );
+    Assert.isTrue(
+      FieldUtils.isFieldAccessible('Account', 'Industry'),
+      'Expected isFieldAccessible to be true for Account Industry field'
     );
     Assert.isTrue(
       FieldUtils.isFieldCreateable(Account.Name),
@@ -183,6 +201,10 @@ public class FieldUtilsTest {
     );
     Assert.isFalse(
       FieldUtils.isFieldUpdateable(Account.CreatedDate),
+      'Expected isFieldUpdateble to be false for Created Date field'
+    );
+    Assert.isFalse(
+      FieldUtils.isFieldUpdateable('Account', 'CreatedDate'),
       'Expected isFieldUpdateble to be false for Created Date field'
     );
     Assert.isTrue(
@@ -193,6 +215,12 @@ public class FieldUtilsTest {
       FieldUtils.isFieldCreateable(Account.CreatedDate),
       'Expected isFieldCreateable to be false for Created Date field'
     );
+  }
+
+  @isTest
+  static void test_getFieldType() {
+    Assert.areEqual(FieldUtils.getFieldType(Account.Industry), 'PICKLIST');
+    Assert.areEqual(FieldUtils.getFieldType('Account', 'Industry'), 'PICKLIST');
   }
 
   @isTest
