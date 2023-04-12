@@ -62,6 +62,46 @@ public class FieldUtils {
   }
 
   /**
+   * @description: get picklist values for one of an object's picklist fields
+   * @param   objApiName    object api name
+   * @param   fieldApiName  picklist field api name
+   * @return  options       picklist values
+   */
+  public static List<String> getPicklistLabels(
+    String objApiName,
+    String fieldApiName
+  ) {
+    List<String> picklistValues = new List<String>();
+    Schema.DescribeFieldResult fieldResult = getFieldMap(objApiName)
+      .get(fieldApiName)
+      .getDescribe();
+    for (Schema.PicklistEntry plEntry : fieldResult.getPicklistValues()) {
+      picklistValues.add(plEntry.getLabel());
+    }
+    return picklistValues;
+  }
+
+  /**
+   * @description: get picklist values for one of an object's picklist fields
+   * @param   objApiName    object api name
+   * @param   fieldApiName  picklist field api name
+   * @return  options       picklist values
+   */
+  public static List<String> getPicklistValues(
+    String objApiName,
+    String fieldApiName
+  ) {
+    List<String> picklistValues = new List<String>();
+    Schema.DescribeFieldResult fieldResult = getFieldMap(objApiName)
+      .get(fieldApiName)
+      .getDescribe();
+    for (Schema.PicklistEntry plEntry : fieldResult.getPicklistValues()) {
+      picklistValues.add(plEntry.getValue());
+    }
+    return picklistValues;
+  }
+
+  /**
    * @description -> Method to get properties of a field set.
    * @usage example:
    *  List<Schema.FieldSetMember> fieldSetMemberList =  readFieldSet('SBQQ__LineEditor','SBQQ__Quote__c');
@@ -137,6 +177,22 @@ public class FieldUtils {
   }
 
   /**
+   * @description: given an object api name and a field Api Name, determine if the field is createable
+   * @param   objApiName      object api name (ex: 'Account')
+   * @param   fieldApiName    field as string to check if it is createable (ex: 'Industry')
+   * @return  Boolean         whether or not the field is createable
+   */
+  public static Boolean isFieldCreateable(
+    String objApiName,
+    String fieldApiName
+  ) {
+    return getFieldMap(objApiName)
+      .get(fieldApiName)
+      .getDescribe()
+      .isCreateable();
+  }
+
+  /**
    * @description: given an SObjectField (ex: Account.Name), determine if the field is accessible
    * @param   sObjField   field to check if it is accessible
    * @return  whether or not the field is accessible
@@ -148,6 +204,22 @@ public class FieldUtils {
     String fieldApiName = String.valueOf(
       sObjField.getDescribe().getSobjectField()
     );
+    return getFieldMap(objApiName)
+      .get(fieldApiName)
+      .getDescribe()
+      .isAccessible();
+  }
+
+  /**
+   * @description: given an object api name and a field Api Name, determine if the field is accessible
+   * @param   objApiName      object api name (ex: 'Account')
+   * @param   fieldApiName    field as string to check if it is accessible (ex: 'Industry')
+   * @return  Boolean         whether or not the field is accessible
+   */
+  public static Boolean isFieldAccessible(
+    String objApiName,
+    String fieldApiName
+  ) {
     return getFieldMap(objApiName)
       .get(fieldApiName)
       .getDescribe()
@@ -170,6 +242,51 @@ public class FieldUtils {
       .get(fieldApiName)
       .getDescribe()
       .isUpdateable();
+  }
+
+  /**
+   * @description: given an object api name and a field Api Name, determine if the field is updateable
+   * @param   objApiName      object api name (ex: 'Account')
+   * @param   fieldApiName    field as string to check if it is updateable (ex: 'Industry')
+   * @return  Boolean         whether or not the field is updateable
+   */
+  public static Boolean isFieldUpdateable(
+    String objApiName,
+    String fieldApiName
+  ) {
+    return getFieldMap(objApiName)
+      .get(fieldApiName)
+      .getDescribe()
+      .isUpdateable();
+  }
+
+  /**
+   * @description: given an SObjectField (ex: Account.Industry), determine if the field type
+   * @param   sObjField   field to get the field type for
+   * @return  String      the field type (ex: 'PICKLIST')
+   */
+  public static String getFieldType(Schema.SObjectField sObjField) {
+    String objApiName = String.valueOf(
+      sObjField.getDescribe().getsObjectType()
+    );
+    String fieldApiName = String.valueOf(
+      sObjField.getDescribe().getSobjectField()
+    );
+    return String.valueOf(
+      getFieldMap(objApiName).get(fieldApiName).getDescribe().getType()
+    );
+  }
+
+  /**
+   * @description: given an object api name and a field Api Name, determine the field type
+   * @param   objApiName      object api name (ex: 'Account')
+   * @param   fieldApiName    field as string to check if it is updateable (ex: 'Industry')
+   * @return  String          the field type (ex: 'PICKLIST')
+   */
+  public static String getFieldType(String objApiName, String fieldApiName) {
+    return String.valueOf(
+      getFieldMap(objApiName).get(fieldApiName).getDescribe().getType()
+    );
   }
 
   /**
