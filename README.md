@@ -36,39 +36,23 @@ Get just the api names of the fields belonging to a particular field set:
 List<Schema.FieldSetMember> acctFieldSetApiNames = FieldUtils.getFieldSetFieldAPINames( 'My_Field_Set',  'Account');
 ```
 -------------------------
-Determine if SObjectField is createable:
+Determine if SObjectField is createable using object and field string params:
 ```java
-// using SObjectField param:
-Boolean isCreateable = FieldUtils.isFieldCreateable(Account.Industry);
-
-// using string params (objApiName and fieldApiName):
 Boolean isCreateable = FieldUtils.isFieldCreateable('Account', 'Industry');
 ```
 -------------------------
-Determine if SObjectField is accessible:
+Determine if SObjectField is accessible using object and field string params:
 ```java
-// using SObjectField param:
-Boolean isAccessible = FieldUtils.isFieldAccessible(Account.Industry);
-
-// using string params (objApiName and fieldApiName):
 Boolean isAccessible = FieldUtils.isFieldAccessible('Account', 'Industry');
 ```
 -------------------------
-Determine if SObjectField is updateable:
+Determine if SObjectField is updateable using object and field string params:
 ```java
-// using SObjectField param:
-Boolean isUpdateable = FieldUtils.isFieldUpdateable(Account.Industry);
-
-// using string params (objApiName and fieldApiName):
 Boolean isUpdateable = FieldUtils.isFieldUpdateable('Account', 'Industry');
 ```
 -------------------------
-Get the field type for an SObject field:
+Get the field type for an SObject field using object and field string params:
 ```java
-// using SObjectField param:
-String industryFieldType = FieldUtils.getFieldType(Account.Industry); // PICKLIST
-
-// using string params (objApiName and fieldApiName):
 String industryFieldType = FieldUtils.getFieldType('Account', 'Industry'); //PICKLIST
 ```
 -------------------------
