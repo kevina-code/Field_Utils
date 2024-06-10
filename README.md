@@ -33,7 +33,7 @@ List<Schema.FieldSetMember> accountFieldSet = FieldUtils.readFieldSet( 'My_Field
 -------------------------
 Get just the api names of the fields belonging to a particular field set:
 ```java
-List<Schema.FieldSetMember> acctFieldSetApiNames = FieldUtils.getFieldSetFieldAPINames( 'My_Field_Set',  'Account');
+List<String> acctFieldSetApiNames = FieldUtils.getFieldSetFieldAPINames( 'My_Field_Set',  'Account');
 ```
 -------------------------
 Determine if SObjectField is createable using object and field string params:
