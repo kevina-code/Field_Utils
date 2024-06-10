@@ -8,7 +8,7 @@ Helpful methods to get information about fields and objects, including schema in
 
 Examples:
 
-Get the describe for an object without ever running an expensive Schema.globalDescribe() call
+Dymamically get the describe for an object without ever running an expensive Schema.globalDescribe() call
 ```java
 // using object api name string param:
 Schema.DescribeSObjectResult accountDescribe = FieldUtils.getDynamicDescribe('Account');
@@ -17,7 +17,7 @@ Schema.DescribeSObjectResult accountDescribe = FieldUtils.getDynamicDescribe('Ac
 Schema.DescribeSObjectResult accountDescribe = FieldUtils.getDynamicDescribe(accountRecord);
 ```
 -------------------------
-Get the field map for an object without ever running an expensive Schema.globalDescribe() call
+Dynamically the field map for an object without ever running an expensive Schema.globalDescribe() call
 ```java
 // using object api name string param:
 Map<String, Schema.SObjectField> accountFieldMap = FieldUtils.getFieldMap('Account'); 
@@ -87,7 +87,7 @@ Parse last object from field path:
 Contact contact = [SELECT Id, Name, Account.Name FROM Contact LIMIT 1];
 
 // dynamically get the last object within a multi-level path (in this case, User/Owner):
-SObject deepestRecordFromPath = ApexUtils.parseLastSubObjectFromPath(contact, 'Account.Owner.Name');
+SObject deepestRecordFromPath = FieldUtils.parseLastSubObjectFromPath(contact, 'Account.Owner.Name');
 ```
 -------------------------
 Parse value from field path:
@@ -96,5 +96,5 @@ Parse value from field path:
 Contact contact = [SELECT Id, Name, Account.Name FROM Contact LIMIT 1];
 
 // dynamically get the field value as an Object for a multi-level path:
-Object fieldValueObj = ApexUtils.parseValueFromFieldPath(contact, 'Account.Owner.Name');
+Object fieldValueObj = FieldUtils.parseValueFromFieldPath(contact, 'Account.Owner.Name');
 ```
