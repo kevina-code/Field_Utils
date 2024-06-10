@@ -1,6 +1,6 @@
 /**
  * Author       : Kevin Antonioli (braveitnow@pm.me)
- * Description  : Utility class for parsing information about fields and field paths
+ * Description  : Utility class for getting information about fields and field paths
  * Created      : 03.27.2023
  *
  * Revisions:
@@ -11,7 +11,7 @@ public class FieldUtils {
   private static Map<String, Schema.DescribeSObjectResult> objApiNameToDescribeMap = new Map<String, Schema.DescribeSObjectResult>();
 
   /**
-   * @description: dynamically get the describe for a given object
+   * @description: dynamically get the describe for a given object without using a Global Describe call
    * @param   objApiName  object api name to get the describe for
    * @return  describe    the Schema.DescribeSObjectResult for the given object
    */
@@ -23,7 +23,7 @@ public class FieldUtils {
       ) == null
       ? ((SObject) Type.forName('Schema', objApiName).newInstance())
           .getSObjectType()
-          .getDescribe()
+          .getDescribe(SObjectDescribeOptions.DEFERRED)
       : objApiNameToDescribeMap.get(objApiName);
     objApiNameToDescribeMap.put(objApiName, describe);
 
@@ -31,7 +31,7 @@ public class FieldUtils {
   }
 
   /**
-   * @description: given an SObject record, return a Schema.DescribeSObjectResult
+   * @description: given an SObject record, return a Schema.DescribeSObjectResult, without using a Global Describe call
    * @param   record    SObject record to get the describe for
    * @return  describe  the Schema.DescribeSObjectResult describe to return
    */
@@ -62,30 +62,49 @@ public class FieldUtils {
   }
 
   /**
-   * @description: get picklist values for one of an object's picklist fields
-   * @param   objApiName    object api name
-   * @param   fieldApiName  picklist field api name
-   * @return  options       picklist values
+   * @description: Given a child object API name (ex: Contact) and a lookup field on that object
+   *   (ex: AccountId) get the parent object API name for the lookup (ex: 'Account')
+   * @param   childObjApiName     API name of the child object (ex: Contact)
+   * @param   lookupFieldApiName  API name of the lookup field on the child object (ex: AccountId)
+   * @return  parent object API name (ex: Account)
+   */
+  public static String getParentObjApiNameFromLookup(
+    String childObjApiName,
+    String lookupFieldApiName
+  ) {
+    return getFieldMap(childObjApiName)
+        .get(lookupFieldApiName)
+        .getDescribe()
+        .getReferenceTo()[0]
+      .getDescribe()
+      .getName();
+  }
+
+  /**
+   * @description: get picklist lables for one of an object's picklist fields
+   * @param   objApiName      object api name
+   * @param   fieldApiName    picklist field api name
+   * @return  picklistLabels  picklist labels
    */
   public static List<String> getPicklistLabels(
     String objApiName,
     String fieldApiName
   ) {
-    List<String> picklistValues = new List<String>();
+    List<String> picklistLabels = new List<String>();
     Schema.DescribeFieldResult fieldResult = getFieldMap(objApiName)
       .get(fieldApiName)
       .getDescribe();
     for (Schema.PicklistEntry plEntry : fieldResult.getPicklistValues()) {
-      picklistValues.add(plEntry.getLabel());
+      picklistLabels.add(plEntry.getLabel());
     }
-    return picklistValues;
+    return picklistLabels;
   }
 
   /**
    * @description: get picklist values for one of an object's picklist fields
-   * @param   objApiName    object api name
-   * @param   fieldApiName  picklist field api name
-   * @return  options       picklist values
+   * @param   objApiName      object api name
+   * @param   fieldApiName    picklist field api name
+   * @return  picklistValues  picklist values
    */
   public static List<String> getPicklistValues(
     String objApiName,
@@ -104,15 +123,14 @@ public class FieldUtils {
   /**
    * @description -> Method to get properties of a field set.
    * @usage example:
-   *  List<Schema.FieldSetMember> fieldSetMemberList =  readFieldSet('SBQQ__LineEditor','SBQQ__Quote__c');
+   *  List<Schema.FieldSetMember> fieldSetMemberList =  readFieldSet('Account_Field_Set1','Account');
    *  for(Schema.FieldSetMember fieldSetMemberObj : fieldSetMemberList) {
    *      system.debug('API Name ====>' + fieldSetMemberObj.getFieldPath()); //api name
-   *      system.debug('Label ====>' + fieldSetMemberObj.getLabel());
-   *      system.debug('Required ====>' + fieldSetMemberObj.getRequired());
-   *      system.debug('DbRequired ====>' + fieldSetMemberObj.getDbRequired());
-   *      system.debug('Type ====>' + fieldSetMemberObj.getType());   //type - STRING,PICKLIST
+   *      system.debug('Label ====>' + fieldSetMemberObj.getLabel()); //label
+   *      system.debug('Required ====>' + fieldSetMemberObj.getRequired()); //required
+   *      system.debug('DbRequired ====>' + fieldSetMemberObj.getDbRequired()); //DbRequired
+   *      system.debug('Type ====>' + fieldSetMemberObj.getType()); //type - STRING,PICKLIST
    *  }
-   *
    * @param   fieldSetName  name of field set you wish to get the properties (ex: fields) for
    * @param   objApiName    api name of object that field set resides on
    * @return  List<Schema.FieldSetMember -> field set properties to return.
@@ -204,6 +222,54 @@ public class FieldUtils {
       .get(fieldApiName)
       .getDescribe()
       .isUpdateable();
+  }
+
+  /**
+   * @description: given an object api name and a field Api Name, determine if the field is an external id field
+   * @param   objApiName      object api name (ex: 'Account')
+   * @param   fieldApiName    field as string to check if it is an external Id field
+   * @return  Boolean         whether or not the field is an external Id field
+   */
+  public static Boolean isFieldExternalId(
+    String objApiName,
+    String fieldApiName
+  ) {
+    return getFieldMap(objApiName)
+      .get(fieldApiName)
+      .getDescribe()
+      .isExternalId();
+  }
+
+  /**
+   * @description: given an object api name and a field Api Name, determine if the field is autoNumber
+   * @param   objApiName      object api name (ex: 'Account')
+   * @param   fieldApiName    field as string to check if it is autoNumber
+   * @return  Boolean         whether or not the field is autoNumber
+   */
+  public static Boolean isFieldAutoNumber(
+    String objApiName,
+    String fieldApiName
+  ) {
+    return getFieldMap(objApiName)
+      .get(fieldApiName)
+      .getDescribe()
+      .isAutoNumber();
+  }
+
+  /**
+   * @description: given an object api name and a field Api Name, determine if the field is calculated
+   * @param   objApiName      object api name (ex: 'Account')
+   * @param   fieldApiName    field as string to check if it is calculated
+   * @return  Boolean         whether or not the field is calculated
+   */
+  public static Boolean isFieldCalculated(
+    String objApiName,
+    String fieldApiName
+  ) {
+    return getFieldMap(objApiName)
+      .get(fieldApiName)
+      .getDescribe()
+      .isCalculated();
   }
 
   /**
@@ -408,5 +474,104 @@ public class FieldUtils {
     }
 
     return fieldVal;
+  }
+
+  /**
+   * @description method to get a RecordTypeId of an Object from an Object Api Name and a RecordType Developer Name
+   * @param   objApiName Object Api Name
+   * @param   rtDevName RecordType Developer Name
+   * @return  Id recordTypeId
+   */
+  public static Id getObjRecordTypeIdFromDeveloperName(
+    String objApiName,
+    String rtDevName
+  ) {
+    return getDynamicDescribe(objApiName)
+      .getRecordTypeInfosByDeveloperName()
+      .get(rtDevName)
+      .getRecordTypeId();
+  }
+
+  /**
+   * @description method to get a RecordTypeId of an Object from an Object Api Name and a RecordType Name
+   * @param   objApiName Object Api Name
+   * @param   rtName RecordType Name
+   * @return  Id Record Type Id
+   */
+  public static Id getObjRecordTypeIdFromName(
+    String objApiName,
+    String rtName
+  ) {
+    return getDynamicDescribe(objApiName)
+      .getRecordTypeInfosByName()
+      .get(rtName)
+      .getRecordTypeId();
+  }
+
+  /**
+   * @description method to get a Record Type Developer Name of an Object from an Object Api Name and a RecordType Id
+   * @param   objApiName Object Api Name
+   * @param   rtId Record Type Id
+   * @return  String Record Type Dev Name
+   */
+  public static String getRecordTypeDevNameFromRecordTypeId(
+    String objApiName,
+    Id rtId
+  ) {
+    return getDynamicDescribe(objApiName)
+      .getRecordTypeInfosById()
+      .get(rtId)
+      .getDeveloperName();
+  }
+
+  /**
+   * @description method to get a Record Type Name of an Object from an Object Api Name and a RecordType Id
+   * @param   objApiName Object Api Name
+   * @param   getName Record Type Id
+   * @return  String Record Type Name
+   */
+  public static String getRecordTypeNameFromRecordTypeId(
+    String objApiName,
+    Id rtId
+  ) {
+    return getDynamicDescribe(objApiName)
+      .getRecordTypeInfosById()
+      .get(rtId)
+      .getName();
+  }
+
+  /**
+   * @description: Determines whether the specified field value has changed from the old object to the new object.
+   * @param   oldObject   the old object, typically from Trigger.oldMap
+   * @param   newObject   the new object, typically from Trigger.new
+   * @param   field       the field which should be checked for a value change
+   * @return  Boolean     if the value has changed or not
+   */
+  public static Boolean fieldValueChanged(
+    SObject oldObject,
+    SObject newObject,
+    Schema.SObjectField field
+  ) {
+    Object oldValue = oldObject.get(field);
+    Object newValue = newObject.get(field);
+    return oldValue != newValue;
+  }
+
+  /**
+   * @description: Determines whether the specified field value has been set from null to non-null value
+   * on the new object.
+   * @param   oldObject the old object, typically from Trigger.oldMap
+   * @param   newObject the new object, typically from Trigger.new
+   * @param   field     the field which should be checked as being set
+   * @return  Boolean   if the value has been set or not
+   */
+  public static Boolean fieldValueSet(
+    SObject oldObject,
+    SObject newObject,
+    Schema.SObjectField field
+  ) {
+    Object oldValue = oldObject.get(field);
+    Object newValue = newObject.get(field);
+    return (oldValue == null) && (newValue != null);
   }
 }
